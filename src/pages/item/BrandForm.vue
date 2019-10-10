@@ -74,7 +74,7 @@
       submit() {
         // 表单校验
         if (this.$refs.brandForm.validate()) {
-          this.brand.categories = this.brand.categories.map(c => c.id);
+          this.brand.categories = this.brand.categories.map(c => c.id).join(",");
           this.brand.letter = this.brand.letter.toUpperCase();
           // 将数据提交到后台
           this.$http({
