@@ -98,14 +98,18 @@
     },
     watch: {
       pagination: {
+        deep: true,
         handler() {
           this.getDataFromApi();
-        },
-        deep: true
+        }
       },
       search: {
         handler() {
-          this.getDataFromApi();
+          if (this.pagination.page == 1) {
+            this.getDataFromApi();
+          } else {
+            this.pagination.page = 1;
+          }
         }
       },
       show(val, oldVal) {
@@ -151,12 +155,29 @@
       },
       getDataFromApi() {
         this.loading = true;
-        // 200ms后返回假数据
-        window.setTimeout(() => {
-          this.items = brandData.slice(0,4);
-          this.totalItems = 100
+        // // 200ms后返回假数据
+        // window.setTimeout(() => {
+        //   this.items = brandData.slice(0,4);
+        //   this.totalItems = 100
+        //   this.loading = false;
+        // }, 200)
+        this.$http.get("/item/brand/page", {
+          params: {
+            page: this.pagination.page, //当前页
+            rows: this.pagination.rowsPerPage, //每页的item数量
+            sortBy: this.pagination.sortBy, //通过哪个字段排序
+            desc: this.pagination.descending, //是否为降序
+            key: this.search //搜索条件
+          }
+        }).then(resp => {
+          this.items = resp.data.items;
+          this.totalItems = resp.data.total;
           this.loading = false;
-        }, 200)
+        }).catch(() => {
+          this.items = [];
+          this.totalItems = 0;
+          this.loading = false;
+        })
       }
     }
   }
